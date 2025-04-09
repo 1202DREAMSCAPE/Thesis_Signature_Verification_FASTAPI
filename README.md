@@ -129,5 +129,3 @@ signature_verification_fastapi/
 - Model uses a Triplet Network trained with adaptive margin and SMOTE-balanced data
 
 ---
-
-```
