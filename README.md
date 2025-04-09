@@ -1,9 +1,3 @@
-Here’s a clean and complete `README.md` file for your project! It assumes your partner will be using macOS (just like you) and sets up the environment from scratch, runs the FastAPI app, and tests the signature verification UI + API.
-
----
-
-### 📄 `README.md` — Signature Verification Web App (FastAPI + TensorFlow + FAISS)
-
 ```markdown
 # ✍️ Signature Verification API
 
