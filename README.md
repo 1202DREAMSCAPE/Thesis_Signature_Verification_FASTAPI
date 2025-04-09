@@ -25,12 +25,12 @@ This project is a web-based signature verification system using:
 
 ---
 
-## 🛠 Setup Instructions (macOS)
+## 🛠 Setup Instructions (macOS/Windows)
 
 ### 1. Clone the Repository
 
 ```bash
-git clone <your-repo-link>
+git clone https://github.com/1202DREAMSCAPE/Thesis_Signature_Verification_FASTAPI
 cd signature_verification_fastapi
 ```
 
