@@ -1,0 +1,12 @@
+fastapi
+uvicorn
+tensorflow
+faiss-cpu
+opencv-python
+scikit-learn
+pandas
+matplotlib
+seaborn
+imblearn
+tqdm
+jinja2
