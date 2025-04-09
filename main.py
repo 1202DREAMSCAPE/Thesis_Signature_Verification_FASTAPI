@@ -16,9 +16,9 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# Load model + FAISS index once
-model = tf.keras.models.load_model("model/triplet_model.keras")
-index = faiss.read_index("model/signature_index.faiss")
+# # Load model + FAISS index once
+# model = tf.keras.models.load_model("model/triplet_model.keras")
+# index = faiss.read_index("model/signature_index.faiss")
 
 # Preprocess image
 def preprocess_image(image):
