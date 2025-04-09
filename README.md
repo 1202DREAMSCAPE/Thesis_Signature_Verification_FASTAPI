@@ -1,7 +1,5 @@
 
 ---
-
-```markdown
 # ✍️ Signature Verification API
 
 This project is a web-based signature verification system using:
