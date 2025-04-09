@@ -47,8 +47,6 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-(If `requirements.txt` doesn’t exist yet, ask [Raffy] to export it using `pip freeze > requirements.txt`)
-
 ### 4. Ensure Files Are in Place
 
 Ensure you have:
