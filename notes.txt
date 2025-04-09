@@ -1,0 +1,7 @@
+signature_verification_fastapi/
+│
+├── model/                → trained model & index
+├── static/               → CSS and uploaded images
+├── templates/            → HTML frontend
+├── utils/                → helper code (e.g., signature detection)
+├── main.py               → main FastAPI backend
