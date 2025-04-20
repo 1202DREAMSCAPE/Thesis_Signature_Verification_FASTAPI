@@ -2,68 +2,75 @@ from fastapi import FastAPI, UploadFile, File, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
-import tensorflow as tf
-import faiss
-import numpy as np
 import time
-import cv2
 import os
-from utils.detector import detect_signature
+import random
+
+# Uncomment these when you're ready to load real model and FAISS
+# import tensorflow as tf
+# import faiss
+# import numpy as np
+# import cv2
+
+# 🔐 Optional: Uncomment if your model uses Lambda layers
+# from keras import config
+# config.enable_unsafe_deserialization()
 
 app = FastAPI()
 
-# Serve static files
+# Serve static files (like uploaded image preview)
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-# # Load model + FAISS index once
-# model = tf.keras.models.load_model("model/triplet_model.keras")
-# index = faiss.read_index("model/signature_index.faiss")
+# 🔄 Load model and FAISS index when you're ready
+# model = tf.keras.models.load_model("model/CEDAR_triplet_model.keras")
+# index = faiss.read_index("model/CEDAR_signature_index.faiss")
 
-# Preprocess image
-def preprocess_image(image):
-    image = cv2.resize(image, (220, 155))
-    image = image / 255.0
-    return np.expand_dims(image, axis=0)
+# def get_embedding(image):
+#     emb = model.predict(image, verbose=0)
+#     return emb / np.linalg.norm(emb)
 
-# Normalize embedding
-def get_embedding(image):
-    emb = model.predict(image, verbose=0)
-    return emb / np.linalg.norm(emb)
+# def preprocess_image(image):
+#     image = cv2.resize(image, (220, 155))
+#     image = image / 255.0
+#     return np.expand_dims(image, axis=0)
 
-# Homepage (UI)
+# =======================
+# Home UI
+# =======================
 @app.get("/", response_class=HTMLResponse)
 async def homepage(request: Request):
     return templates.TemplateResponse("index.html", {"request": request})
 
-# API Endpoint
+
+# =======================
+# Dummy /verify Endpoint
+# =======================
 @app.post("/verify")
 async def verify_signature(signature: UploadFile = File(...)):
     try:
-        # Save uploaded file
+        # Save uploaded file so it can be previewed
         path = "static/uploaded.png"
         with open(path, "wb") as f:
             f.write(await signature.read())
 
-        # Detect signature region
-        cropped_path = detect_signature(path)
+        # Simulate loading + processing time
+        time.sleep(1)
 
-        # Read and preprocess
-        image = cv2.imread(cropped_path)
-        image = preprocess_image(image)
-        embedding = get_embedding(image)
+        # Simulate realistic random result
+        random_value = random.random()
+        is_genuine = random_value > 0.4  # 60% chance of being genuine
+        similarity_score = round(random.uniform(0.4, 0.95), 4)
+        processing_time = round(random.uniform(0.1, 0.3), 4)
 
-        # Search in FAISS
-        start = time.time()
-        distances, _ = index.search(embedding, 1)
-        duration = round(time.time() - start, 4)
-        score = round(1 / (1 + distances[0][0]), 4)
-        is_genuine = score > 0.5
+        # Simulate an error case (e.g., blurry image) ~10% chance
+        if random_value < 0.1:
+            raise ValueError("Signature too blurry or unclear to verify.")
 
         return {
             "is_genuine": is_genuine,
-            "similarity_score": score,
-            "processing_time": duration
+            "similarity_score": similarity_score,
+            "processing_time": processing_time
         }
 
     except Exception as e:

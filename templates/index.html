@@ -4,83 +4,226 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Signature Verification</title>
-  <link rel="stylesheet" href="/static/style.css" />
+  <style>
+    body {
+      font-family: 'Segoe UI', sans-serif;
+      background: #f3f4f6;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 90%;
+      max-width: 400px;
+      text-align: center;
+    }
+
+    h1 {
+      font-size: 1.8rem;
+      margin-bottom: 20px;
+    }
+
+    /* Hide the default file input */
+    .file-input {
+      display: none;
+    }
+
+    .custom-file-label {
+      display: inline-block;
+      background-color: #e2e8f0;
+      color: #1a202c;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      margin-bottom: 10px;
+      transition: background-color 0.3s ease;
+    }
+
+    .custom-file-label:hover {
+      background-color: #cbd5e0;
+    }
+
+    .file-name {
+      font-size: 14px;
+      color: #4a5568;
+      margin-bottom: 10px;
+    }
+
+    #preview {
+      max-width: 100%;
+      margin-top: 10px;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      display: none;
+    }
+
+    #upload-btn {
+      margin-top: 15px;
+      background-color: #1d4ed8;
+      color: white;
+      padding: 12px 24px;
+      border: none;
+      font-weight: bold;
+      font-size: 14px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+
+    #upload-btn:hover {
+      transform: scale(1.03);
+    }
+
+    #spinner {
+      margin-left: 8px;
+      display: none;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    .result-box {
+      margin-top: 25px;
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 15px 20px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.04);
+    }
+
+    .result p {
+      margin: 6px 0;
+      font-size: 15px;
+    }
+
+    #reset-btn {
+      margin-top: 15px;
+      background-color: #e53e3e;
+      color: white;
+      padding: 8px 18px;
+      border: none;
+      border-radius: 6px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    #reset-btn:hover {
+      background-color: #c53030;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
     <h1>Verify Signature</h1>
+    <form id="upload-form">
+      <label for="signature" class="custom-file-label">📁 Choose File</label>
+      <input type="file" id="signature" name="signature" class="file-input" required />
+      <p class="file-name" id="file-name">No file selected</p>
+      
+      <img id="preview" alt="Signature Preview"/>
 
-    <form id="form">
-      <input type="file" id="fileInput" name="signature" accept="image/*" required />
-      <img id="preview" style="display:none; margin-top: 10px; max-width: 100%;" />
-      <button type="submit">Upload & Verify</button>
+      <button id="upload-btn" type="submit">
+        <span id="btn-text">Upload & Verify</span>
+        <span id="spinner">🔄</span>
+      </button>
     </form>
 
-    <p id="loading" style="display:none;">🔄 Processing...</p>
-
-    <div id="result" style="display:none;">
-      <p id="genuine"></p>
-      <p id="score"></p>
-      <p id="time"></p>
+    <div class="result-box" id="result-box">
+      <div class="result">
+        <p>✅ Genuine: <b id="genuine">undefined</b></p>
+        <p>📊 Score: <b id="score">undefined</b></p>
+        <p>⏱ Time: <b id="time">undefineds</b></p>
+      </div>
+      <button type="button" id="reset-btn">🔄 Reset</button>
     </div>
   </div>
 
   <script>
-    const form = document.getElementById("form");
-    const fileInput = document.getElementById("fileInput");
-    const preview = document.getElementById("preview");
-    const loading = document.getElementById("loading");
-    const result = document.getElementById("result");
-    const genuine = document.getElementById("genuine");
-    const score = document.getElementById("score");
-    const time = document.getElementById("time");
+    const fileInput = document.getElementById('signature');
+    const preview = document.getElementById('preview');
+    const form = document.getElementById('upload-form');
+    const spinner = document.getElementById('spinner');
+    const btnText = document.getElementById('btn-text');
+    const uploadBtn = document.getElementById('upload-btn');
+    const fileNameDisplay = document.getElementById("file-name");
+    const resetBtn = document.getElementById("reset-btn");
 
-    // Preview image
-    fileInput.onchange = () => {
-      const file = fileInput.files[0];
+    // Update file name
+    fileInput.addEventListener("change", function () {
+      const fileName = fileInput.files.length > 0 ? fileInput.files[0].name : "No file selected";
+      fileNameDisplay.textContent = fileName;
+    });
+
+    // 📸 Live preview
+    fileInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
       if (file) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-          preview.src = e.target.result;
-          preview.style.display = "block";
-        };
-        reader.readAsDataURL(file);
+        preview.src = URL.createObjectURL(file);
+        preview.style.display = 'block';
+      } else {
+        preview.style.display = 'none';
       }
-    };
+    });
 
-    // Submit and show result
-    form.onsubmit = async (e) => {
+    // ✨ Upload with animation
+    form.addEventListener('submit', async (e) => {
       e.preventDefault();
       const file = fileInput.files[0];
       if (!file) return;
 
+      // 🔄 Show spinner
+      btnText.textContent = "Verifying...";
+      spinner.style.display = 'inline-block';
+      uploadBtn.disabled = true;
+
       const formData = new FormData();
-      formData.append("signature", file);
+      formData.append('signature', file);
 
-      loading.style.display = "block";
-      result.style.display = "none";
-      genuine.innerText = "";
-      score.innerText = "";
-      time.innerText = "";
+      try {
+        const res = await fetch('/verify', {
+          method: 'POST',
+          body: formData
+        });
 
-      const res = await fetch("/verify", {
-        method: "POST",
-        body: formData
-      });
+        const data = await res.json();
+        document.getElementById('genuine').textContent = data.is_genuine;
+        document.getElementById('score').textContent = data.similarity_score;
+        document.getElementById('time').textContent = data.processing_time + 's';
 
-      const data = await res.json();
-      loading.style.display = "none";
-
-      if (data.error) {
-        alert("❌ Error: " + data.error);
-        return;
+      } catch (err) {
+        alert("❌ Verification failed. Please try again.");
       }
 
-      result.style.display = "block";
-      genuine.innerHTML = `✅ Genuine: <strong>${data.is_genuine}</strong>`;
-      score.innerHTML = `📊 Score: <strong>${data.similarity_score}</strong>`;
-      time.innerHTML = `⏱ Time: <strong>${data.processing_time}s</strong>`;
-    };
+      // Reset button
+      btnText.textContent = "Upload & Verify";
+      spinner.style.display = 'none';
+      uploadBtn.disabled = false;
+    });
+
+    // 🔁 Reset everything
+    resetBtn.addEventListener("click", () => {
+      fileInput.value = "";
+      preview.style.display = "none";
+      preview.src = "";
+      fileNameDisplay.textContent = "No file selected";
+
+      document.getElementById("genuine").textContent = "undefined";
+      document.getElementById("score").textContent = "undefined";
+      document.getElementById("time").textContent = "undefineds";
+    });
   </script>
 </body>
 </html>
